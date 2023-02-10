@@ -1,0 +1,3 @@
+D:/Kod/C++/UNO/cmake-build-debug/CMakeFiles/UNO.dir
+D:/Kod/C++/UNO/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Kod/C++/UNO/cmake-build-debug/CMakeFiles/rebuild_cache.dir
