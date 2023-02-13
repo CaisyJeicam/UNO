@@ -1,11 +1,3 @@
-#if defined(_WIN32) || defined(_WIN64) || defined(WIN32)
-/* Windows headers */
-#include <windows.h>
-#include <io.h>
-#include <processthreadsapi.h>
-#include <sysinfoapi.h>
-#include <winsock2.h>
-#else
 #include <netdb.h>
 #include <poll.h>
 #include <sys/resource.h>
@@ -14,7 +6,6 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#endif
 #include <iostream>
 #include <cstring>
 #include <random>
@@ -136,6 +127,7 @@ void handleTurn(int player) {
     Card topCard = discardPile.back();
     if ((topCard.type == Card::Type::SKIP) && (activationFlag == 1)){
         sendMessage(player, "You skip your turn.");
+        activationFlag = false;
         return;
     }
     else if ((topCard.type == Card::Type::WILD_DRAW_FOUR) && (activationFlag == 1)){
@@ -144,15 +136,16 @@ void handleTurn(int player) {
         playerHands[player].push_back(drawCard());
         playerHands[player].push_back(drawCard());
         playerHands[player].push_back(drawCard());
+        activationFlag = false;
         return;
     }
     else if ((topCard.type == Card::Type::DRAW_TWO) && (activationFlag == 1)){
         sendMessage(player, "You draw two cards.");
         playerHands[player].push_back(drawCard());
         playerHands[player].push_back(drawCard());
+        activationFlag = false;
         return;
     }
-    activationFlag = false;
     message = "Your turn. Your hand: ";
     for (Card card : playerHands[player]) {
         message += card.toString() + ", ";
@@ -160,7 +153,8 @@ void handleTurn(int player) {
     message.pop_back();
     message.pop_back();
     sendMessage(player, message);
-    sendMessage(player, "What would you like to play? (e.g. 'play 2'). Send 'play d' to draw a card");
+    sendMessage(player, "\nWhat would you like to play? (e.g. 'play 2'). Send 'play d' to draw a card");
+    sendMessage(player, "Card on top of discard pile: " + topCard.toString());
     bool canPlay = false;
     while (!canPlay){
         char buffer[1024];
