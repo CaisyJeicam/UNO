@@ -9,10 +9,10 @@
 
 
 Card::Card(Color color, Type type, int number = -1)
-            : color(color)
-            , type(type)
-            , number(number)
-    {}
+        : color(color)
+        , type(type)
+        , number(number)
+{}
 
 std::string Card::toString() const {
     std::string result = "";
@@ -60,7 +60,19 @@ bool Card::canPlayOn(const Card& other) const {
     if (color == Color::WILD || other.color == Color::WILD) {
         return true;
     }
-    return color == other.color || type == other.type;
+    if (color == other.color){
+        return true;
+    }
+    if ((type == other.type) && (type != Type::NUMBER)){
+        return true;
+    }
+    if ((type == Type::NUMBER) && (number == other.number)){
+        return  true;
+    } else{
+        return false;
+    }
+
 }
+
 
 

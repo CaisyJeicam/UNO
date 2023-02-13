@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include "Card.h"
 
-const int PORT = 1100;
 const int BACKLOG = 10;
 const int MAX_PLAYERS = 3;
 
@@ -128,7 +127,6 @@ void handleTurn(int player) {
     if ((topCard.type == Card::Type::SKIP) && (activationFlag == 1)){
         sendMessage(player, "You skip your turn.");
         activationFlag = false;
-        return;
     }
     else if ((topCard.type == Card::Type::WILD_DRAW_FOUR) && (activationFlag == 1)){
         sendMessage(player, "You draw four cards.");
@@ -137,14 +135,12 @@ void handleTurn(int player) {
         playerHands[player].push_back(drawCard());
         playerHands[player].push_back(drawCard());
         activationFlag = false;
-        return;
     }
     else if ((topCard.type == Card::Type::DRAW_TWO) && (activationFlag == 1)){
         sendMessage(player, "You draw two cards.");
         playerHands[player].push_back(drawCard());
         playerHands[player].push_back(drawCard());
         activationFlag = false;
-        return;
     }
     message = "Your turn. Your hand: ";
     for (Card card : playerHands[player]) {
@@ -173,6 +169,7 @@ void handleTurn(int player) {
         }
         int cardIndex = std::stoi(input.substr(5)) - 1;
         if ((cardIndex < 0) && (cardIndex >= playerHands[player].size())){
+            sendMessage(player, "Wrong card!");
             continue;
         }
         else if (playerHands[player][cardIndex].canPlayOn(topCard)){
@@ -189,15 +186,14 @@ void handleTurn(int player) {
             }
             canPlay = true;
             activationFlag = true;
+            topCard = discardPile.back();
+            if (topCard.type == Card::Type::REVERSE){
+                broadcastMessage("Reverse flow.");
+                playOrder *= -1;
+            }
             continue;
         }
     }
-    topCard = discardPile.back();
-    if (topCard.type == Card::Type::REVERSE){
-        broadcastMessage("Reverse flow.");
-        playOrder *= -1;
-    }
-
     if (playerHands[player].empty()) {
         gameOver = true;
         broadcastMessage("Player " + std::to_string(player) + " won the game!");
@@ -205,6 +201,9 @@ void handleTurn(int player) {
 }
 
 int main(int argc, char** argv) {
+
+    int PORT = 1100;
+    //int PORT = atoi(argv[1]);
 
     int server = socket(AF_INET, SOCK_STREAM, 0);
     if (server < 0) {
