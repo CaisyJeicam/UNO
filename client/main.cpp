@@ -63,7 +63,6 @@ int main()
         }
     }
 
-    // Wait for the receive thread to finish
     receiveThread.join();
 
     close(clientSocket);
